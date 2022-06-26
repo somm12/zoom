@@ -23,13 +23,16 @@ function onSocketClose() {
   console.log("Disconnected from the Browser ❌");
 }
 
+const sockets = [];
 // 여기서 socket은 연결된 브라우저를 뜻한다.
 wss.on("connection", (socket) => {
+  sockets.push(socket);
   console.log("connected to Browser✅");
   socket.on("close", onSocketClose);
   socket.on("message", (message) => {
-    socket.send(message.toString("utf-8"));
+    sockets.forEach((aSocket) => aSocket.send(message.toString("utf-8")));
   });
 });
+// brave 브라우저와 firefox 브라우저 모두에게 메세지를 보낼 수 있게함.
 
 server.listen(3000, handleListen);
