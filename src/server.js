@@ -22,16 +22,14 @@ const wss = new WebSocket.Server({ server });
 function onSocketClose() {
   console.log("Disconnected from the Browser ❌");
 }
-function onSocketMessage(message) {
-  console.log(message.toString("utf-8"));
-}
 
 // 여기서 socket은 연결된 브라우저를 뜻한다.
 wss.on("connection", (socket) => {
   console.log("connected to Browser✅");
   socket.on("close", onSocketClose);
-  socket.on("message", onSocketMessage);
-  socket.send("hello!!");
+  socket.on("message", (message) => {
+    socket.send(message.toString("utf-8"));
+  });
 });
 
 server.listen(3000, handleListen);
