@@ -18,10 +18,27 @@ const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
+  socket["nickname"] = "Anon";
+  socket.onAny((event) => {
+    console.log(`Socket Event: ${event}`);
+  });
   socket.on("enter_room", (roomName, done) => {
     socket.join(roomName); // 채팅 방에 참가하려면 join만 쓰면 됨. 새로운 socket id 생성
     done();
+    // 같은 room에 있는 나 이외의 사람들 모두에게 메세지를 보낼 수 있다.
+    socket.to(roomName).emit("welcome", socket.nickname);
   });
+  socket.on("disconnecting", () => {
+    // 창을 닫을 때 방에 있는 모두에게 bye라고 메세지를 보낸다.
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickname)
+    );
+  });
+  socket.on("new_message", (msg, room, done) => {
+    socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
+    done();
+  });
+  socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
 // http server 위에 socket io 서버를 올림 => localhost가 동일 포트에서 http, ws request 모두 처리할 수 있다.
 
