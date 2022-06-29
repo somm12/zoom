@@ -5,6 +5,7 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const form = welcome.querySelector("form");
 const room = document.getElementById("room");
+const nameForm = welcome.querySelector("#name");
 
 room.hidden = true;
 let roomName;
@@ -28,8 +29,9 @@ function handleMessageSubmit(event) {
 
 function handleNicknameSubmit(event) {
   event.preventDefault();
-  const input = room.querySelector("#name input");
+  const input = welcome.querySelector("#name input");
   socket.emit("nickname", input.value);
+  input.value = "";
 }
 
 function showRoom() {
@@ -39,9 +41,8 @@ function showRoom() {
   h3.innerText = `Room ${roomName}`;
 
   const msgForm = room.querySelector("#msg");
-  const nameForm = room.querySelector("#name");
+
   msgForm.addEventListener("submit", handleMessageSubmit);
-  nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
 function handleRoomSubmit(event) {
@@ -54,13 +55,27 @@ function handleRoomSubmit(event) {
 }
 
 form.addEventListener("submit", handleRoomSubmit);
+nameForm.addEventListener("submit", handleNicknameSubmit);
 
-socket.on("welcome", (user) => {
+socket.on("welcome", (user, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
   addMessage(`${user} arrived!`);
 });
-socket.on("bye", (left) => {
+socket.on("bye", (left, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
   addMessage(`${left} left`);
 });
 
 socket.on("new_message", addMessage);
 // 여기서 addMessage는 (msg)=> {addMessage(msg)} 와 같음.
+socket.on("room_change", (rooms) => {
+  const roomList = welcome.querySelector("ul");
+  roomList.innerHTML = "";
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.appendChild(li);
+  });
+});
