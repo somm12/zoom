@@ -9,7 +9,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
-
+let myPeerConnection;
 async function getCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -96,6 +96,7 @@ async function startMedia() {
   welcome.hidden = true;
   call.hidden = false;
   await getMedia();
+  makeConnection();
 }
 
 function handleWelcomeSubmit(event) {
@@ -109,6 +110,27 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // socket code
 
-socket.on("welcome", () => {
-  console.log("someone joined");
+socket.on("welcome", async () => {
+  // if somedone joined, this block of codes are executed in my browser not peer B
+  // peer A part
+  // offer is like kind of invitation card for connection.
+  const offer = await myPeerConnection.createOffer();
+  myPeerConnection.setLocalDescription(offer);
+  console.log("sent the offer");
+  socket.emit("offer", offer, roomName);
 });
+
+// this will execute in peer B browser.
+
+socket.on("offer", (offer) => {
+  console.log(offer);
+});
+
+// RTC code
+// make connection and add stream info
+function makeConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  myStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
