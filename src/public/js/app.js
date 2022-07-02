@@ -93,7 +93,7 @@ const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
 async function initCall() {
-  welcome.hidden = true;
+  welcome.style.display = "none";
   call.hidden = false;
   await getMedia();
   makeConnection();
