@@ -1,6 +1,10 @@
-import http from "http";
-import SocketIO from "socket.io";
-import express from "express";
+// import http from "http";
+// import SocketIO from "socket.io";
+// import express from "express";
+
+const http = require("http");
+const SocketIO = require("socket.io");
+const express = require("express");
 
 const app = express();
 
