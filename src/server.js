@@ -15,7 +15,8 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
 app.get("/*", (req, res) => res.redirect("/"));
 
-const handleListen = () => console.log(`Listening on http://localhost:3000`);
+const PORT = process.env.PORT || 3000;
+const handleListen = () => console.log(`Listening on http://localhost:${PORT}`);
 
 // http위에 socket io 서버
 const httpServer = http.createServer(app);
@@ -78,4 +79,4 @@ wsServer.on("connection", (socket) => {
     socket.to(roomName).emit("ice", ice);
   });
 });
-httpServer.listen(3000, handleListen);
+httpServer.listen(PORT, handleListen);
