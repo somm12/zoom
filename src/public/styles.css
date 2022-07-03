@@ -2,6 +2,9 @@ html {
   width: 100%;
   height: 100%;
 }
+* {
+  box-sizing: border-box;
+}
 body {
   background: linear-gradient(45deg, Violet, Orange);
   width: 100%;
@@ -138,13 +141,14 @@ select {
   padding: 3px;
   border-radius: 20px;
   border-color: #80808047;
-  height: 30px;
+  height: 50px;
 }
 #msg button {
   width: 8%;
   background-color: #fafbff;
   border: 0;
   font-size: x-large;
+  cursor: grab;
 }
 #msg i {
   color: rgb(212, 102, 139);
@@ -174,9 +178,7 @@ li {
 .You {
   padding: 10px;
   border-radius: 20px;
-  width: 26%;
-  position: relative;
-  left: 550px;
+  width: 100%;
 }
 #room ul {
   height: 70vh;
@@ -194,15 +196,26 @@ ul h4 {
   font-size: 18px;
 }
 ul div {
-  background-color: white;
-  width: 100%;
   border-radius: 20px;
   padding: 10px;
 }
-.You div {
+.messageBox {
+  background-color: white;
+}
+.You .messageBox {
   background-color: #bbb2f7;
 }
 
 ::-webkit-scrollbar {
   display: none;
+}
+.You .parentMessageBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+video {
+  width: 100%;
+  height: 30vh;
+  margin: 10px 0px;
 }
