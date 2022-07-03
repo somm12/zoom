@@ -58,10 +58,10 @@ function handleMuteClick() {
     .forEach((track) => (track.enabled = !track.enabled));
   const icon = muteBtn.querySelector("i");
   if (!muted) {
-    icon.className = "fas fa-volume-up";
+    icon.className = "fas fa-volume-mute";
     muted = true;
   } else {
-    icon.className = "fas fa-volume-mute";
+    icon.className = "fas fa-volume-up";
     muted = false;
   }
 }
@@ -71,10 +71,10 @@ function handleCameraClick() {
     .forEach((track) => (track.enabled = !track.enabled));
   const icon = cameraBtn.querySelector("i");
   if (cameraOff) {
-    icon.className = "fas fa-video-slash";
+    icon.className = "fas fa-video";
     cameraOff = false;
   } else {
-    icon.className = "fas fa-video";
+    icon.className = "fas fa-video-slash";
     cameraOff = true;
   }
 }
