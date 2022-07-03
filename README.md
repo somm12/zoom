@@ -30,7 +30,7 @@
 <br>
 
 ## 👨‍👨‍👦‍👦 Video Call and Chat Room
-<img width="1000" alt="스크린샷 2022-07-03 오전 10 06 35" src="https://user-images.githubusercontent.com/63543733/177029391-3901769b-0a5c-44c6-86d5-6c162a7b1d88.png">
+<img width="1167" alt="스크린샷 2022-07-03 오후 6 04 30" src="https://user-images.githubusercontent.com/63543733/177032848-6d18e4d7-4422-4117-8bf6-ac750fdfd0b6.png">
 
 
 > 웹캠을 이용히 상대방과 실시간 화상통화 <br>
