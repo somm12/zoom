@@ -3,10 +3,10 @@ const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
-const call = document.getElementById("call");
-call.hidden = true;
+const call = document.getElementById("section");
+call.style.display = "none";
 let myStream;
-let muted = false;
+let muted = true;
 let cameraOff = false;
 let roomName;
 let myPeerConnection;
@@ -48,16 +48,20 @@ async function getMedia(deviceId) {
   } catch (e) {
     console.log(e);
   }
+  myStream
+    .getAudioTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
 }
 function handleMuteClick() {
   myStream
     .getAudioTracks()
     .forEach((track) => (track.enabled = !track.enabled));
+  const icon = muteBtn.querySelector("i");
   if (!muted) {
-    muteBtn.innerText = "Unmute";
+    icon.className = "fas fa-volume-up";
     muted = true;
   } else {
-    muteBtn.innerText = "Mute";
+    icon.className = "fas fa-volume-mute";
     muted = false;
   }
 }
@@ -65,11 +69,12 @@ function handleCameraClick() {
   myStream
     .getVideoTracks()
     .forEach((track) => (track.enabled = !track.enabled));
+  const icon = cameraBtn.querySelector("i");
   if (cameraOff) {
-    cameraBtn.innerText = "Turn Camera Off";
+    icon.className = "fas fa-video-slash";
     cameraOff = false;
   } else {
-    cameraBtn.innerText = "Turn Camera On";
+    icon.className = "fas fa-video";
     cameraOff = true;
   }
 }
@@ -91,21 +96,87 @@ camerasSelect.addEventListener("input", handleCameraChange);
 // Welcome Form (join a room)
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
+const room = document.getElementById("room");
+let nickname;
+room.hidden = true;
 
 async function initCall() {
   welcome.style.display = "none";
-  call.hidden = false;
+  call.style.display = "flex";
   await getMedia();
   makeConnection();
 }
+function addMessage(message) {
+  const ul = room.querySelector("ul");
+  const li = document.createElement("li");
+  const nickname = document.createElement("h4");
+  const messageBox = document.createElement("div");
 
+  li.className = message.split(":")[0];
+  if (message.split(":").length === 2) {
+    nickname.innerText = message.split(":")[0];
+    messageBox.innerText = message.split(":")[1];
+    li.appendChild(nickname);
+    li.appendChild(messageBox);
+  } else {
+    messageBox.innerText = message.split(":")[0];
+    li.appendChild(messageBox);
+  }
+
+  ul.insertBefore(li, ul.firstChild);
+}
+// 여기서 addMessage는 (msg)=> {addMessage(msg)} 와 같음.
+socket.on("new_message", addMessage);
+socket.on("welcome", (user, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
+  addMessage(`${user} arrived!`);
+});
+socket.on("bye", (left, newCount) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount}명)`;
+  addMessage(`${left} left`);
+});
+socket.on("room_change", (rooms) => {
+  const roomList = welcome.querySelector("ul");
+  roomList.innerHTML = "";
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.appendChild(li);
+  });
+});
+
+function handleMessageSubmit(event) {
+  event.preventDefault();
+  const input = room.querySelector("#msg input");
+  const value = input.value;
+  socket.emit("new_message", input.value, roomName, () => {
+    addMessage(`You: ${value}`);
+  });
+  input.value = "";
+}
+function showRoom() {
+  room.hidden = false;
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName}`;
+
+  const msgForm = room.querySelector("#msg");
+
+  msgForm.addEventListener("submit", handleMessageSubmit);
+}
 async function handleWelcomeSubmit(event) {
   event.preventDefault();
-  const input = welcomeForm.querySelector("input");
+  const roomInput = welcomeForm.querySelector("#roomName");
+  const nicknameInput = document.querySelector("#nickname");
+  nickname = nicknameInput.value;
+  socket.emit("nickname", nicknameInput.value);
+  nicknameInput.value = "";
+
   await initCall();
-  socket.emit("join_room", input.value);
-  roomName = input.value;
-  input.value = "";
+  socket.emit("join_room", roomInput.value, showRoom);
+  roomName = roomInput.value;
+  roomInput.value = "";
 }
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 // Socket Code
@@ -113,27 +184,22 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 socket.on("welcome", async () => {
   const offer = await myPeerConnection.createOffer();
   myPeerConnection.setLocalDescription(offer);
-  console.log("sent the offer");
   socket.emit("offer", offer, roomName);
 });
 //peer B
 socket.on("offer", async (offer) => {
-  console.log("received the offer");
   myPeerConnection.setRemoteDescription(offer);
   const answer = await myPeerConnection.createAnswer();
   myPeerConnection.setLocalDescription(answer);
   socket.emit("answer", answer, roomName);
-  console.log("sent the answer");
 });
 //peer A
 socket.on("answer", (answer) => {
-  console.log("received the answer");
   myPeerConnection.setRemoteDescription(answer);
 });
 //------
 
 socket.on("ice", (ice) => {
-  console.log("receive candidiate");
   myPeerConnection.addIceCandidate(ice);
 });
 
@@ -160,7 +226,6 @@ function makeConnection() {
 }
 
 function handleIce(data) {
-  console.log("sent ice candidate");
   socket.emit("ice", data.candidate, roomName);
 }
 
