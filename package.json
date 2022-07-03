@@ -32,5 +32,8 @@
   "author": "somm12",
   "bugs": {
     "url": "https://github.com/somm12/zoom/issues"
+  },
+  "engines": {
+    "node": "14.18.1"
   }
 }
