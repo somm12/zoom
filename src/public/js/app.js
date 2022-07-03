@@ -111,16 +111,21 @@ function addMessage(message) {
   const li = document.createElement("li");
   const nickname = document.createElement("h4");
   const messageBox = document.createElement("div");
+  const messageBoxParent = document.createElement("div");
+  messageBox.className = "messageBox";
+  messageBoxParent.className = "parentMessageBox";
 
   li.className = message.split(":")[0];
   if (message.split(":").length === 2) {
     nickname.innerText = message.split(":")[0];
     messageBox.innerText = message.split(":")[1];
-    li.appendChild(nickname);
-    li.appendChild(messageBox);
+    messageBoxParent.appendChild(nickname);
+    messageBoxParent.appendChild(messageBox);
+    li.appendChild(messageBoxParent);
   } else {
     messageBox.innerText = message.split(":")[0];
-    li.appendChild(messageBox);
+    messageBoxParent.appendChild(messageBox);
+    li.appendChild(messageBoxParent);
   }
 
   ul.insertBefore(li, ul.firstChild);
